@@ -15,19 +15,74 @@
  **/
 
 module.exports = function(RED) {
-  var cfenv = require('cfenv');
+  const SERVICE_IDENTIFIER = 'text-to-speech';
+  var pkg = require('../../package.json'),
+    TextToSpeechV1 = require('watson-developer-cloud/text-to-speech/v1');
+    serviceutils = require('../../utilities/service-utils');
 
-  var username, password;
+  // Require the Cloud Foundry Module to pull credentials from bound service
+  // If they are found then the username and password will be stored in
+  // the variables sUsername and sPassword.
+  //
+  // This separation between sUsername and username is to allow
+  // the end user to modify the credentials when the service is not bound.
+  // Otherwise, once set credentials are never reset, resulting in a frustrated
+  // user who, when he errenously enters bad credentials, can't figure out why
+  // the edited ones are not being taken.
 
-  var service = cfenv.getAppEnv().getServiceCreds(/text to speech/i)
+  var username, password, sUsername, sPassword;
+
+  var service = serviceutils.getServiceCreds(SERVICE_IDENTIFIER);
 
   if (service) {
-    username = service.username;
-    password = service.password;
+    sUsername = service.username;
+    sPassword = service.password;
   }
 
+  // Node RED Admin - fetch and set vcap services
   RED.httpAdmin.get('/watson-text-to-speech/vcap', function(req, res) {
     res.json(service ? {bound_service: true} : null);
+  });
+
+  // API used by widget to fetch available models
+  RED.httpAdmin.get('/watson-text-to-speech/voices', function (req, res) {
+    var tts = new TextToSpeechV1({
+      username: sUsername ? sUsername : req.query.un,
+      password: sPassword ? sPassword : req.query.pwd,
+      headers: {
+        'User-Agent': pkg.name + '-' + pkg.version
+      }
+    });
+
+    tts.voices({}, function(err, voices){
+      if (err) {
+        if (!err.error) {
+          err.error = 'Error ' + err.code + ' in fetching voices';
+        }
+        res.json(err);
+      } else {
+        res.json(voices);
+      }
+    });
+  });
+
+  // API used by widget to fetch available customisations
+  RED.httpAdmin.get('/watson-text-to-speech/customs', function (req, res) {
+    var tts = new TextToSpeechV1({
+      username: sUsername ? sUsername : req.query.un,
+      password: sPassword ? sPassword : req.query.pwd,
+      headers: {
+        'User-Agent': pkg.name + '-' + pkg.version
+      }
+    });
+
+    tts.getCustomizations({}, function(err, customs){
+      if (err) {
+        res.json(err);
+      } else {
+        res.json(customs);
+      }
+    });
   });
 
   function Node(config) {
@@ -41,22 +96,21 @@ module.exports = function(RED) {
         return;
       }
 
-      username = username || this.credentials.username;
-      password = password || this.credentials.password;
+      username = sUsername || this.credentials.username;
+      password = sPassword || this.credentials.password || config.password;
 
       if (!username || !password) {
-        var message = 'Missing Speech To Text service credentials';
+        var message = 'Missing Text To Speech service credentials';
         node.error(message, msg);
         return;
       }
 
-      var watson = require('watson-developer-cloud');
-
-      var text_to_speech = watson.text_to_speech({
+      var text_to_speech = new TextToSpeechV1({
         username: username,
         password: password,
-        version: 'v1',
-        url: 'https://stream.watsonplatform.net/text-to-speech/api'
+        headers: {
+          'User-Agent': pkg.name + '-' + pkg.version
+        }
       });
 
       var params = {
@@ -64,6 +118,11 @@ module.exports = function(RED) {
         voice: msg.voice || config.voice,
         accept: config.format
       };
+
+      // Check the params for customisation options
+      if (config.langcustom && 'NoCustomisationSetting' !== config.langcustom) {
+        params.customization_id = config.langcustom;
+      }
 
       node.status({fill:"blue", shape:"dot", text:"requesting"});
       text_to_speech.synthesize(params, function (err, body, response) {

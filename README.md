@@ -2,35 +2,68 @@ Node-RED Watson Nodes for IBM Bluemix
 =====================================
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4f98536040924add9da4ca1deecb72b4)](https://www.codacy.com/app/BetaWorks-NodeRED-Watson/node-red-node-watson?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=watson-developer-cloud/node-red-node-watson&amp;utm_campaign=Badge_Grade)
+[![npm-version](https://img.shields.io/npm/v/node-red-node-watson.svg)](https://www.npmjs.com/package/node-red-node-watson)
+[![npm-downloads](https://img.shields.io/npm/dm/node-red-node-watson.svg)](https://www.npmjs.com/package/node-red-node-watson)
 
-### New in version 0.4.6
+<a href="https://cla-assistant.io/watson-developer-cloud/node-red-node-watson"><img src="https://cla-assistant.io/readme/badge/watson-developer-cloud/node-red-node-watson" alt="CLA assistant" /></a>
 
-### New in version 0.4.5
-- New Conversation experimental node.
-- Visual Recognition v3 : added a Delete All Classifiers feature in the util node. Added corresponding Flow in Starter.
+### New in version 0.5.7
+- Fix to Tone Analyzer to allow JSON as input
+- Enabled Conversation Tone method to Tone Analyzer Node
+- Discovery Node now supports: Create Environment, Create Configuration,
+Create Collection
 
-### New in version 0.4.4
-- New palette category for deprecated Nodes, that are being retained for backward compatibity.
-- Bugfixes to Speech to Text.
+### New in version 0.5.6
+- User Agent added to following nodes: Conversation, Conversation Workspace Manager,
+Discovery, Discovery Query Builder, Document Conversion, Language Translator,
+Language Translator Utility, Language Indentify, Natural Language Classifier,
+Natural Language Understanding, Personality Insights, Retrieve and Rank,
+Similarity Search, Speech to Text, STT Corpus Builder, Text to Speech,
+TTS Corpus Builder, Tone Analyzer, Visual Recognition
 
-### New in version 0.4.3
-- New Visual Recognition V3 node to support the V3 GA API. This incorporates the features that were previously
-available as part of AlchemyAPI Vision.
+### New in version 0.5.5
+- Discovery Query Builder was not picking up searchable fields.
+- Personality Insights Node reset to use '2016-10-20' version
+- Natural Language Classifier Node migrated to use url based services utility to detect bound service.
+- Natural Language Classifier Node Migrated to use Promises.
+- Natural Language Classifier now able to use File Inject as input for create mode.
+- Natural Language Classifier Node allows Classifier ID to be set dynamically in classify, list and remove modes.
+- Natural Language Understanding Node now allows language and model overrides on
+msg.nlu_options.language, msg.nlu_options.entity_model and msg.nlu_options.relations_model.
+- Trade-off Analytics Node moved to the deprecated list.
+- Migrated Visual Recognition and Visual Recognition Util nodes to use promises, and
+ensure that all error responses are reported.
 
-### New in version 0.4.2
-- The transcription returned for the Speech to Text node now returns full (untruncated) transcription. The
-alternatives are returned in msg.fullresult. The dialog now loads available models dynamically. This will
-allow new speech models to be identified without requiring a further code change.
-- The Retrieve and Rank node nows stores credentials in a configuration node, allowing the credentials to be
-shared acrosss a flow with multiple Retrieve and Rank nodes.
-- New Tone Analyzer V3 node to support the V3 GA API.
+### New in version 0.5.4
+- Fix for Service / Name conflicts in Document Conversion Node
 
-### New in version 0.4.1
-- AlchemyAPI Image Analysis and Language nodes migrated from old Alchemy SDK to current
-Watson Developer Cloud SDK for Node.js
-- The dialog for the Language Translation service now loads available models dynamically. This allows
-new translation models to be identified without requiring a further code change. This version
-allows customised translations models to be selected.
+### New in version 0.5.3
+- Implement methods to manage Counter Examples in
+Conversation workspace Manager node.
+- Removed V1 Personality Insights node.
+- Removed V1 Language Indentification node.
+- Removed V1 Language Translation node.
+- Removed V1 Language Translation Utility node.
+
+### New in version 0.5.2
+- Visual Recognition was overwriting msg.payload with 'look at msg.results'. Fixed
+so that msg.payload is left as is.
+
+### New in version 0.5.1
+- Implement methods to manage for Intent and Example Input for Intent, in
+Conversation workspace Manager node.
+- Deprecated Alchemy Nodes.
+- Removed Conversation experimental node.
+- Removed Discovery experimental node.
+- Removed Tone Analyzer beta node.
+- Removed Relationship Extraction node.
+- Removed the V1 Visual Recognition node.
+
+### New in version 0.5.0
+- New node for Natural Language Understanding
+- watson-developer-cloud dependency forces node engine >= 4.5
+- Nodes deprecated in 0.4.x will be removed in 0.5.x releases
+
 
 ### Watson Nodes for Node-RED
 A collection of nodes to interact with the IBM Watson services in [IBM Bluemix](http://bluemix.net).
@@ -41,9 +74,13 @@ A collection of nodes to interact with the IBM Watson services in [IBM Bluemix](
     - Use concept graphs to tag and explore information and documents.
 - Conversation
     - Add conversational capabilities into applications.
+- Date Extraction
+    - Uses AlchemyAPI Date Extraction to detect natural language date/time expressions from text
 - Dialog
     - Automate branching conversation between a user and your application.
     - Use natural language to automatically respond to user questions, cross-sell and up-sell, walk users through processes or applications, or even hand-hold users through difficult tasks.
+- Discovery
+    - List environments created for the Discovery service
 - Document Conversion
     - Prepare documents for the Retrieve and Rank service.
 - Feature Extract
@@ -59,14 +96,16 @@ A collection of nodes to interact with the IBM Watson services in [IBM Bluemix](
     - Translates text from one language to another    
 - Natural Language Classifier
     - Uses machine learning algorithms to return the top matching predefined classes for short text inputs.
+- Natural Language Understanding
+    - Analyze text to extract meta-data from content such as concepts, entities, keywords ...
 - News
     - Searches news and blog content    
 - Personality Insights
     - Use linguistic analytics to infer cognitive and social characteristics from text
-- Relationship Extraction
-    - Extract entities and their relationships from unstructured text
 - Retrieve and Rank
-    - Creates a trainable search engine for your data    
+    - Creates a trainable search engine for your data  
+- Similarity search
+    - Create and search against image collections  
 - Speech To Text
     - Convert audio containing speech to text
 - Text To Speech
@@ -78,6 +117,8 @@ A collection of nodes to interact with the IBM Watson services in [IBM Bluemix](
 - Visual Recognition
     - Analyze visual appearance of images to understand their contents
 
+### Usage
+Example usage flows can be found here [node-red-labs](https://github.com/watson-developer-cloud/node-red-labs)
 
 ### Contributing
 
